@@ -7,4 +7,14 @@
   height: 100%;
   fill: var(--text-color);
   user-select: none;
+  transform: scale(1);
+  will-change: transform;
+  transform-origin: center; /* This ensures scaling happens from the center */
+  transition: transform 0.3s ease-in-out;
+  user-select: none;
+  padding: 2px;
+}
+
+.temporary {
+  transform: scale(0.8);
 }

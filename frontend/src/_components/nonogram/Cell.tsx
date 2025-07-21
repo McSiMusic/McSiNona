@@ -1,31 +1,46 @@
 "use client";
-import { NonogramCell } from "@/lib/nonogram";
+import { NonogramCell, Point } from "@/lib/nonogram";
 import * as React from "react";
 import styles from "./Cell.module.css";
 import { useCallback } from "react";
 import cn from "classnames";
-import { changeFieldCell } from "@/lib/nonogramSlice";
-import { useDispatch } from "react-redux";
+import { getCellValue } from "@/lib/nonogramSlice";
+import { useSelector } from "react-redux";
+import { NonogramState } from "@/lib/nonogramStore";
 
 export interface ICellProps {
-    type: NonogramCell;
-    x: number;
-    y: number;
+    point: Point;
+    onMouseDown?: (args: { point: Point; type: NonogramCell }) => void;
+    onMouseEnter?: (point: Point) => void;
 }
 
-export function Cell({ type, x, y }: ICellProps) {
-    const dispatch = useDispatch();
-    const onClick = useCallback(
-        () => dispatch(changeFieldCell({ type: "filled", x, y })),
-        [dispatch, x, y],
+export function Cell({ point, onMouseDown, onMouseEnter }: ICellProps) {
+    const { isTemporary, type } = useSelector((state: NonogramState) =>
+        getCellValue(state, point),
     );
 
-    const onContextMenu = useCallback(
+    const handleMouseDown = useCallback(
         (event: React.MouseEvent<HTMLDivElement>) => {
             event.preventDefault();
-            dispatch(changeFieldCell({ type: "cross", x, y }));
+            event.stopPropagation();
+            const isRightButton = event.button === 2;
+            onMouseDown?.({
+                point,
+                type: isRightButton ? "cross" : "filled",
+            });
         },
-        [dispatch, x, y],
+        [onMouseDown, point],
+    );
+
+    const handleMouseEnter = useCallback(() => {
+        onMouseEnter?.(point);
+    }, [onMouseEnter, point]);
+
+    const handleContextMenu = useCallback(
+        (event: React.MouseEvent<HTMLDivElement>) => {
+            event.preventDefault();
+        },
+        [],
     );
 
     return (
@@ -34,9 +49,11 @@ export function Cell({ type, x, y }: ICellProps) {
                 styles.cell,
                 type === "filled" && styles.filled,
                 type === "cross" && styles.cross,
+                isTemporary && styles.temporary,
             ])}
-            onClick={onClick}
-            onContextMenu={onContextMenu}
+            onMouseDown={handleMouseDown}
+            onMouseEnter={handleMouseEnter}
+            onContextMenu={handleContextMenu}
         >
             {type === "cross" && (
                 <svg viewBox="0 0 20 20" width="100%" height="100%">

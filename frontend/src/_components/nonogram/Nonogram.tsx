@@ -1,11 +1,19 @@
 "use client";
 import * as React from "react";
-import { Nonogram } from "@/lib/nonogram";
+import { Nonogram, NonogramCell, Point } from "@/lib/nonogram";
 import styles from "./Nonogram.module.css";
 import cn from "classnames";
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
-import { changeFieldCell, getField, getNonogram } from "@/lib/nonogramSlice";
+import { useCallback, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    calculateTemporaryLine,
+    getMaxHorizontalCount,
+    getMaxVerticalCount,
+    getMode,
+    getNonogram,
+    finishLineMode,
+    startLineMode,
+} from "@/lib/nonogramSlice";
 import { Cell } from "./Cell";
 
 export interface INonogramProps {
@@ -25,11 +33,13 @@ It has grid css layout
 */
 
 export function NonogramElement() {
-    const field = useSelector(getField);
     const { vertical, horizontal } = useSelector(getNonogram);
+    const dispatch = useDispatch();
 
-    const maxVerticalCount = Math.max(...vertical.map((set) => set.length));
-    const maxHorizontalCount = Math.max(...horizontal.map((set) => set.length));
+    const maxVerticalCount = useSelector(getMaxVerticalCount);
+    const maxHorizontalCount = useSelector(getMaxHorizontalCount);
+
+    const mode = useSelector(getMode);
 
     const preview = useMemo(
         () => (
@@ -102,6 +112,20 @@ export function NonogramElement() {
         [horizontal, maxHorizontalCount, maxVerticalCount],
     );
 
+    const handleMouseDown = useCallback(
+        ({ point, type }: { point: Point; type: NonogramCell }) => {
+            dispatch(startLineMode({ start: point, type }));
+        },
+        [dispatch],
+    );
+
+    const handleMouseEnter = useCallback(
+        (point: Point) => {
+            if (mode === "line") dispatch(calculateTemporaryLine(point));
+        },
+        [dispatch, mode],
+    );
+
     const fieldElements = useMemo(
         () =>
             vertical.map((_, x) =>
@@ -118,12 +142,35 @@ export function NonogramElement() {
                             gridColumn: `${maxHorizontalCount + x + 1}`,
                         }}
                     >
-                        <Cell type={field[x][y]} x={x} y={y} />
+                        <Cell
+                            point={{ x, y }}
+                            onMouseDown={handleMouseDown}
+                            onMouseEnter={handleMouseEnter}
+                        />
                     </div>
                 )),
             ),
-        [field, horizontal, maxHorizontalCount, maxVerticalCount, vertical],
+        [
+            handleMouseDown,
+            handleMouseEnter,
+            horizontal,
+            maxHorizontalCount,
+            maxVerticalCount,
+            vertical,
+        ],
     );
+
+    const handleMouseUp = useCallback(() => {
+        if (mode === "line") dispatch(finishLineMode());
+    }, [dispatch, mode]);
+
+    useEffect(() => {
+        window.addEventListener("mouseup", handleMouseUp);
+
+        return () => {
+            window.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, [handleMouseUp]);
 
     return (
         <div className={styles.wrapper}>

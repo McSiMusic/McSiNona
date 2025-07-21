@@ -6,8 +6,21 @@ export type Nonogram = {
 export type NonogramCell = "empty" | "filled" | "cross";
 
 export type NonogramState = {
-    /* Цифры сверху и сниху */
+    /* Digits on the sides */
     nonogram: Nonogram;
-    /* Заполненое поле */
+    /* Current field */
     field: NonogramCell[][];
+    /* Temporary line (using when creating line), can be only horizontal or vertical */
+    temporaryLine?: {
+        start: Point;
+        end?: Point;
+        type: NonogramCell;
+    };
+    /* Current mode, normal = when Idle, line - when draw a line */
+    mode: "normal" | "line";
+};
+
+export type Point = {
+    x: number;
+    y: number;
 };
