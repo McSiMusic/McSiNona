@@ -10,12 +10,9 @@
   inset: 0px;
 }
 
-.preview {
-  border: solid 3px var(--text-color);
-}
-
 .cell {
-  border: solid 1px var(--contrast-color);
+  border-top: solid 1px var(--contrast-color);
+  border-left: solid 1px var(--contrast-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,8 +20,20 @@
   aspect-ratio: 1 / 1;
 }
 
+.cell.withHorizontalBorder {
+  border-top: solid 3px var(--text-color);
+}
+
+.cell.withVerticalBorder {
+  border-left: solid 3px var(--text-color);
+}
+
 .wrapper {
   width: 100%;
   height: 100%;
   position: relative;  
+}
+
+.wrapper * {
+  box-sizing: border-box;
 }
