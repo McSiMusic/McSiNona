@@ -1,0 +1,6 @@
+.header {
+  height: 64px;
+  padding: 8px;
+  background-color: var(--contrast-bg-color);
+  position: relative;
+}
