@@ -1,0 +1,10 @@
+.filled {
+  background-color: var(--text-color);
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  fill: var(--text-color);
+  user-select: none;
+}
