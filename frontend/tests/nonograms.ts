@@ -36,3 +36,8 @@ export const nonogram15x15: Nonogram = {
         [],
     ],
 };
+
+export const nonogram3x3: Nonogram = {
+    vertical: [[1, 1], [1], [1, 1]],
+    horizontal: [[1, 1], [1], [1, 1]],
+};

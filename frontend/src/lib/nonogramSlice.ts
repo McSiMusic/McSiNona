@@ -15,7 +15,7 @@ export const nonogramSlice = createSlice({
         initNonogram: (state, action: PayloadAction<Nonogram>) => {
             const { payload: nonogram } = action;
             state.nonogram = nonogram;
-            state.field = new Array(nonogram.vertical.length).fill(
+            state.field = Array.from({ length: nonogram.vertical.length }, () =>
                 new Array(nonogram.horizontal.length).fill("empty"),
             );
         },
@@ -108,6 +108,17 @@ export const nonogramSlice = createSlice({
                 state.temporaryLine = undefined;
             }
         },
+        fillCell: (
+            state,
+            action: PayloadAction<{ point: Point; type: NonogramCell }>,
+        ) => {
+            state.mode = "line";
+
+            const { type, point } = action.payload;
+
+            const { x, y } = point;
+            state.field[x][y] = type;
+        },
     },
     selectors: {
         getNonogram: (state) => state.nonogram,
@@ -145,6 +156,7 @@ export const {
     calculateTemporaryLine,
     startLineMode,
     finishLineMode,
+    fillCell,
 } = nonogramSlice.actions;
 
 export const {
