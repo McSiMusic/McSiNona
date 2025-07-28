@@ -15,6 +15,13 @@
   padding: 2px;
 }
 
+.cross {
+  background-color: var(--text-color);
+  border-radius: 50%;
+  width: 20%;
+  height: 20%;
+}
+
 .temporary {
   transform: scale(0.8);
 }

@@ -119,6 +119,9 @@ export const nonogramSlice = createSlice({
             const { x, y } = point;
             state.field[x][y] = type;
         },
+        setField: (state, action: PayloadAction<NonogramState["field"]>) => {
+            state.field = action.payload;
+        },
     },
     selectors: {
         getNonogram: (state) => state.nonogram,
@@ -157,6 +160,7 @@ export const {
     startLineMode,
     finishLineMode,
     fillCell,
+    setField,
 } = nonogramSlice.actions;
 
 export const {

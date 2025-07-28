@@ -35,11 +35,18 @@ export const solveNonogramAsync = async (
     };
 
     do {
-        resultField = await updateField({
+        const { updatedField, wasUpdated } = await updateField({
             field: resultField,
             possibleSolutions,
             fillCell,
         });
+
+        if (!wasUpdated) {
+            alert("There is no solution(");
+            break;
+        }
+
+        resultField = updatedField;
         possibleSolutions = filterPossibleSolutions(
             possibleSolutions,
             resultField,
@@ -76,6 +83,7 @@ export const updateField = async ({
 }) => {
     const { vertical, horizontal } = possibleSolutions;
     const updatedField = [...field];
+    let wasUpdated = false;
 
     for (let y = 0; y < horizontal.length; y++) {
         const possibleHSolutions = horizontal[y];
@@ -85,6 +93,7 @@ export const updateField = async ({
         for (let pointsIndex = 0; pointsIndex < values.length; pointsIndex++) {
             const { index: x, value } = values[pointsIndex];
             updatedField[x][y] = value;
+            wasUpdated = true;
             await fillCell?.({ point: { x, y }, value });
         }
     }
@@ -97,11 +106,12 @@ export const updateField = async ({
         for (let pointsIndex = 0; pointsIndex < values.length; pointsIndex++) {
             const { index: y, value } = values[pointsIndex];
             updatedField[x][y] = value;
+            wasUpdated = true;
             await fillCell?.({ point: { x, y }, value });
         }
     }
 
-    return updatedField;
+    return { wasUpdated, updatedField };
 };
 
 const extractRightValuesFromPossibleSolutions = (
