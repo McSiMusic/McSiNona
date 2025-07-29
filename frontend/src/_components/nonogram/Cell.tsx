@@ -54,14 +54,6 @@ export function Cell({ point, onMouseDown, onMouseEnter }: ICellProps) {
             onMouseDown={handleMouseDown}
             onMouseEnter={handleMouseEnter}
             onContextMenu={handleContextMenu}
-        >
-            {/* {type === "cross" && (
-                <svg viewBox="0 0 20 20" width="100%" height="100%">
-                    <text x="50%" y="16" textAnchor="middle">
-                        ✖
-                    </text>
-                </svg>
-            )} */}
-        </div>
+        />
     );
 }

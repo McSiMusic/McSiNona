@@ -24,3 +24,8 @@ export type Point = {
     x: number;
     y: number;
 };
+
+export type NonogramPointDefinition = {
+    point: Point;
+    value: NonogramCell;
+};

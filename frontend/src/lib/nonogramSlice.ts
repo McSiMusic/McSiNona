@@ -1,5 +1,11 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Nonogram, NonogramCell, NonogramState, Point } from "./nonogram";
+import {
+    Nonogram,
+    NonogramCell,
+    NonogramPointDefinition,
+    NonogramState,
+    Point,
+} from "./nonogram";
 import { isPointBelongsToLine } from "./helpers/isPointBelongsToLine";
 
 const initialState: NonogramState = {
@@ -108,16 +114,16 @@ export const nonogramSlice = createSlice({
                 state.temporaryLine = undefined;
             }
         },
-        fillCell: (
+        fillCells: (
             state,
-            action: PayloadAction<{ point: Point; type: NonogramCell }>,
+            action: PayloadAction<NonogramPointDefinition[]>,
         ) => {
             state.mode = "line";
 
-            const { type, point } = action.payload;
-
-            const { x, y } = point;
-            state.field[x][y] = type;
+            action.payload.forEach(({ point, value }) => {
+                const { x, y } = point;
+                state.field[x][y] = value;
+            });
         },
         setField: (state, action: PayloadAction<NonogramState["field"]>) => {
             state.field = action.payload;
@@ -159,7 +165,7 @@ export const {
     calculateTemporaryLine,
     startLineMode,
     finishLineMode,
-    fillCell,
+    fillCells,
     setField,
 } = nonogramSlice.actions;
 

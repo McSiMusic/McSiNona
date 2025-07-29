@@ -1,4 +1,4 @@
-import { Nonogram, NonogramCell, Point } from "../nonogram";
+import { Nonogram, NonogramCell, NonogramPointDefinition } from "../nonogram";
 import { allTheSame } from "../utils/array/allTheSame";
 
 type PossibleSolutions = {
@@ -6,17 +6,12 @@ type PossibleSolutions = {
     vertical: NonogramCell[][][];
 };
 
-type FillCellFuncArgs = {
-    point: Point;
-    value: NonogramCell;
-};
+type FillCellFunc = (args: NonogramPointDefinition) => void;
 
-type FillCellFunc = (args: FillCellFuncArgs) => Promise<void>;
-
-export const solveNonogramAsync = async (
+export const solveNonogram = (
     nonogram: Nonogram,
     fillCell?: FillCellFunc,
-): Promise<NonogramCell[][]> => {
+): NonogramCell[][] => {
     const { horizontal, vertical } = nonogram;
     const hLength = horizontal.length;
     const vLength = vertical.length;
@@ -35,7 +30,7 @@ export const solveNonogramAsync = async (
     };
 
     do {
-        const { updatedField, wasUpdated } = await updateField({
+        const { updatedField, wasUpdated } = updateField({
             field: resultField,
             possibleSolutions,
             fillCell,
@@ -72,7 +67,7 @@ export const isSolved = (field: NonogramCell[][]) => {
     return field.every((column) => column.every((cell) => cell !== "empty"));
 };
 
-export const updateField = async ({
+export const updateField = ({
     field,
     possibleSolutions,
     fillCell,
@@ -94,7 +89,7 @@ export const updateField = async ({
             const { index: x, value } = values[pointsIndex];
             updatedField[x][y] = value;
             wasUpdated = true;
-            await fillCell?.({ point: { x, y }, value });
+            fillCell?.({ point: { x, y }, value });
         }
     }
 
@@ -107,7 +102,7 @@ export const updateField = async ({
             const { index: y, value } = values[pointsIndex];
             updatedField[x][y] = value;
             wasUpdated = true;
-            await fillCell?.({ point: { x, y }, value });
+            fillCell?.({ point: { x, y }, value });
         }
     }
 
