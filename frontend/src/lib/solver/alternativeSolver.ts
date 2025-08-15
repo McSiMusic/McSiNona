@@ -23,8 +23,6 @@ export const solveNonogramAlternative = (
         new Array(hLength).fill("empty"),
     );
 
-    fillCells = () => {};
-
     let lines = getLines(nonogram);
     edgeOptimizedSolution({ allLines: lines, field: resultField, fillCells });
 

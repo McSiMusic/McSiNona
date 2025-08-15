@@ -128,6 +128,12 @@ export const nonogramSlice = createSlice({
         setField: (state, action: PayloadAction<NonogramState["field"]>) => {
             state.field = action.payload;
         },
+        inverseField: (state) => {
+            state.nonogram = nonogram;
+            state.field = Array.from({ length: nonogram.vertical.length }, () =>
+                new Array(nonogram.horizontal.length).fill("empty"),
+            );
+        },
     },
     selectors: {
         getNonogram: (state) => state.nonogram,

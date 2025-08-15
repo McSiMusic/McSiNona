@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fillCells, getNonogram, setField } from "@/lib/nonogramSlice";
 import {
@@ -11,6 +11,7 @@ export default function SolveButton() {
     const dispatch = useDispatch();
     const nonogram = useSelector(getNonogram);
     const workerRef = useRef<Worker | null>(null);
+    const [status, setStatus] = useState("Press Solve to start solving!");
 
     useEffect(() => {
         // Создаем воркер
@@ -27,13 +28,14 @@ export default function SolveButton() {
         ) => {
             const { data } = e;
             if (data.type === "progress") {
+                setStatus(`Solving... - ${Math.floor(data.progress)}%`);
                 dispatch(fillCells(data.points));
-                console.log(data.progress);
             } else {
                 if (data.result.sucess) {
                     dispatch(setField(data.result.nonogram));
+                    setStatus(`Success`);
                 } else {
-                    alert("Can't solve, sorry(");
+                    setStatus(`Can't solve`);
                 }
             }
         };
@@ -44,8 +46,14 @@ export default function SolveButton() {
     }, [dispatch]);
 
     const handleSolveClick = useCallback(async () => {
+        setStatus("Solving...");
         workerRef.current?.postMessage(nonogram);
     }, [nonogram]);
 
-    return <button onClick={handleSolveClick}>Solve</button>;
+    return (
+        <div>
+            <h4>{status}</h4>
+            <button onClick={handleSolveClick}>Solve</button>
+        </div>
+    );
 }

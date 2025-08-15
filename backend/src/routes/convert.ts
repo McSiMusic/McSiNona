@@ -16,7 +16,8 @@ convertRouter.post(
       }
 
       const size = parseInt(req.body.size) || 20;
-      const threshold = 128;
+      const isInversed = req.body.isInversed === "true";
+      const threshold = 210;
 
       const image = sharp(req.file.buffer);
 
@@ -28,7 +29,7 @@ convertRouter.post(
         .toBuffer();
 
       const convertedBuffer = buffer.map((value) =>
-        value < threshold ? 1 : 0
+        value < threshold ? (isInversed ? 0 : 1) : isInversed ? 1 : 0
       );
 
       const result = [];

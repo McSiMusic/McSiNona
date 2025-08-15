@@ -25,7 +25,7 @@ export default function ImageConverter() {
         }
     };
 
-    const handleUpload = async () => {
+    const handleUpload = async (isInversed = false) => {
         if (!fileInputRef.current?.files?.[0]) {
             setError("Пожалуйста, выберите изображение");
             return;
@@ -38,6 +38,7 @@ export default function ImageConverter() {
             const formData = new FormData();
             formData.append("image", fileInputRef.current.files[0]);
             formData.append("size", size.toString());
+            formData.append("isInversed", isInversed.toString());
 
             const response = await fetch(`${API_BASE_URL}/api/convert`, {
                 method: "POST",
@@ -62,7 +63,7 @@ export default function ImageConverter() {
     return (
         <div style={{ margin: "0 auto", maxWidth: "800px", padding: "20px" }}>
             <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>
-                Конвертер изображения в матрицу
+                Image Convertor
             </h1>
 
             <div style={{ marginBottom: "15px" }}>
@@ -126,7 +127,7 @@ export default function ImageConverter() {
             )}
 
             <button
-                onClick={handleUpload}
+                onClick={() => handleUpload()}
                 disabled={!image || isLoading}
                 style={{
                     padding: "8px 16px",
@@ -139,6 +140,24 @@ export default function ImageConverter() {
                 }}
             >
                 {isLoading ? "Обработка..." : "Конвертировать в матрицу"}
+            </button>
+
+            <button
+                onClick={() => handleUpload(true)}
+                disabled={!image || isLoading}
+                style={{
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    backgroundColor:
+                        !image || isLoading ? "#cccccc" : "#28a745",
+                    color: "white",
+                    border: "none",
+                    cursor: !image || isLoading ? "not-allowed" : "pointer",
+                }}
+            >
+                {isLoading
+                    ? "Обработка..."
+                    : "Конвертировать в матрицу c инверсией"}
             </button>
 
             {error && (
