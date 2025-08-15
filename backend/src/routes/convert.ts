@@ -24,6 +24,7 @@ convertRouter.post(
       // Обработка изображения
       const buffer = await image
         .resize({ width: size, height: size, fit: "cover" })
+        .flatten({ background: "#FFFFFF" })
         .grayscale()
         .raw()
         .toBuffer();
