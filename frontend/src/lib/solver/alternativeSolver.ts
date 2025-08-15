@@ -1,7 +1,6 @@
-import { current } from "@reduxjs/toolkit";
 import { Nonogram, NonogramCell, NonogramPointDefinition } from "../nonogram";
 
-type FillCelslFunc = (args: NonogramPointDefinition[]) => void;
+type FillCellsFunc = (args: NonogramPointDefinition[]) => void;
 type LineMeta = {
     solved: boolean;
     values: number[];
@@ -13,7 +12,7 @@ type LineMeta = {
 
 export const solveNonogramAlternative = (
     nonogram: Nonogram,
-    fillCells?: FillCelslFunc,
+    fillCells?: FillCellsFunc,
 ): { sucess: true; nonogram: NonogramCell[][] } | { sucess: false } => {
     console.time("nonogram");
     const { horizontal, vertical } = nonogram;
@@ -24,10 +23,12 @@ export const solveNonogramAlternative = (
         new Array(hLength).fill("empty"),
     );
 
+    fillCells = () => {};
+
     let lines = getLines(nonogram);
+    edgeOptimizedSolution({ allLines: lines, field: resultField, fillCells });
 
     do {
-        console.log(JSON.stringify(lines));
         const { wasUpdated } = updateField({
             field: resultField,
             fillCells,
@@ -53,6 +54,96 @@ export const solveNonogramAlternative = (
     return { sucess: true, nonogram: resultField };
 };
 
+// Let's try to solve border, it can't be a boost for most nonograms
+const edgeOptimizedSolution = ({
+    allLines,
+    field,
+    fillCells,
+}: {
+    allLines: LineMeta[];
+    field: NonogramCell[][];
+    fillCells?: FillCellsFunc;
+}) => {
+    const firstHorizontal = allLines.find(
+        (line) => line.index === 0 && line.type === "horizontal",
+    )!;
+    const firstVertical = allLines.find(
+        (line) => line.index === 0 && line.type === "vertical",
+    )!;
+    const lastHorizontal = allLines.find(
+        (line) =>
+            line.index === line.lineSize - 1 && line.type === "horizontal",
+    )!;
+    const lastVertical = allLines.find(
+        (line) => line.index === line.lineSize - 1 && line.type === "vertical",
+    )!;
+
+    const edgeLines = [
+        firstHorizontal,
+        firstVertical,
+        lastHorizontal,
+        lastVertical,
+    ];
+
+    const { wasUpdated } = updateField({
+        field,
+        lines: edgeLines,
+        optimized: true,
+        fillCells,
+    });
+
+    if (wasUpdated) {
+        let nonogramDefitions: NonogramPointDefinition[] = [];
+        const convertToFieldCoordinate = (line: LineMeta, index: number) => ({
+            x: line.type === "horizontal" ? index : line.index,
+            y: line.type === "horizontal" ? line.index : index,
+        });
+        const fillFieldCoordinates = (line: LineMeta, index: number) => {
+            const point = convertToFieldCoordinate(line, index);
+            const { x, y } = point;
+            field[x][y] = "filled";
+
+            nonogramDefitions.push({ point, value: "filled" });
+        };
+
+        const getFieldValue = (line: LineMeta, index: number) => {
+            const { x, y } = convertToFieldCoordinate(line, index);
+            return field[x][y];
+        };
+
+        allLines.forEach((line) => {
+            if (line.solved) return;
+
+            nonogramDefitions = [];
+
+            const firstGroupValue = line.values[0];
+            if (
+                getFieldValue(line, 0) === "filled" &&
+                firstGroupValue &&
+                firstGroupValue > 1
+            ) {
+                for (let i = 1; i < firstGroupValue; i++) {
+                    fillFieldCoordinates(line, i);
+                }
+            }
+
+            const lastIndex = line.lineSize - 1;
+            const lastGroupValue = line.values[lastIndex];
+            if (
+                getFieldValue(line, lastIndex) === "filled" &&
+                lastGroupValue &&
+                lastGroupValue > 1
+            ) {
+                for (let i = 1; i < firstGroupValue; i++) {
+                    fillFieldCoordinates(line, lastIndex - i);
+                }
+            }
+
+            fillCells?.(nonogramDefitions);
+        });
+    }
+};
+
 export const isSolved = (field: NonogramCell[][]) => {
     return field.every((column) => column.every((cell) => cell !== "empty"));
 };
@@ -65,7 +156,7 @@ export const updateField = ({
 }: {
     field: NonogramCell[][];
     lines: LineMeta[];
-    fillCells?: FillCelslFunc;
+    fillCells?: FillCellsFunc;
     optimized: boolean;
 }): { wasUpdated: boolean } => {
     let wasUpdated = false;
@@ -116,7 +207,7 @@ export const updateField = ({
             ) as NonogramPointDefinition[];
 
         if (solvedPoints.length) {
-            //fillCells?.(solvedPoints);
+            fillCells?.(solvedPoints);
 
             solvedPoints.forEach(({ point: { x, y }, value }) => {
                 field[x][y] = value;
@@ -196,9 +287,6 @@ export function* generateSolutionsLazy(
         yield new Array(size).fill("cross");
         return;
     }
-
-    console.log(lineNumbers);
-    console.log(currentState);
 
     const maxOffset = getMaxOffset(lineNumbers, size);
     if (maxOffset < 0) throw new Error("Invalid nonogram");
