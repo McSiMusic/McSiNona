@@ -80,7 +80,7 @@ export const SaveBlock = () => {
         };
 
         setIsSaving(true);
-        const response = await fetch(`${API_BASE_URL}/api/nonogram`, {
+        const response = await fetch(`${API_BASE_URL}/api/nonograms`, {
             method: "POST",
             body: JSON.stringify(requestBody),
             headers: {

@@ -1,0 +1,57 @@
+.root {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+}
+
+.nonogram {
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  outline: 4px outset var(--contrast-color);
+  border-radius: 8px;
+  background-color: var(--contrast-bg-color);
+  width: 360px;
+  color: var(--text-color);
+  transition: transform 0.3s ease-in-out; 
+  transform: scale(1);
+  cursor: pointer;
+  
+}
+
+.nonogram:hover { 
+  transform: scale(1.05);
+}
+
+.nonogram:active { 
+  transform: scale(0.95);
+}
+
+.name {
+  font-size: 24px;
+  text-shadow: var(--contrast-color) 1px 0 10px;
+  flex: 1;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.link {
+  color: inherit;
+  text-decoration: inherit;
+}

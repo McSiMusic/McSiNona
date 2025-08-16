@@ -21,7 +21,6 @@ convertRouter.post(
 
       const image = sharp(req.file.buffer);
 
-      // Обработка изображения
       const buffer = await image
         .resize({ width: size, height: size, fit: "cover" })
         .flatten({ background: "#FFFFFF" })

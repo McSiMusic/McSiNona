@@ -13,7 +13,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Подключение к MongoDB (используйте переменные окружения!)
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/mcsinona";
 
 mongoose
@@ -21,12 +20,11 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Простой роут для проверки
 app.get("/", (req, res) => {
   res.send("Express + TypeScript + Mongoose");
 });
 
 app.use("/api", convertRouter);
-app.use("/api/nonogram", nonogramRouter);
+app.use("/api/nonograms", nonogramRouter);
 
 export default app;
