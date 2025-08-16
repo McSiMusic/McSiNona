@@ -1,0 +1,69 @@
+/* Apply base-select appearance to both the select and its picker for consistent styling */
+.select,
+::picker(select) {
+  appearance: base-select;
+}
+
+/* Basic styling for the select element */
+.select {
+  width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--text-color);
+  border-radius: 8px;
+  background-color: var(--main-bg-color);
+  font-family: Arial, sans-serif;
+  color: var(--text-color);
+  cursor: pointer;
+  line-height: 1.4;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Style on hover and focus */
+.select:hover,
+.select:focus {
+  border-color: var(--contrast-color);
+  box-shadow: 0 0 5px var(--contrast-color);
+}
+
+/* Style for the options within the dropdown */
+.option {
+  padding: 8px 10px;
+  background-color: var(--main-bg-color);
+  color: var(--text-color)
+}
+
+/* Style for selected option */
+.option:checked {
+  background-color: var(--contrast-bg-color);
+  font-weight: bold;
+}
+
+/* You can also style the dropdown arrow if needed */
+/* This is a more advanced technique and might require custom SVG or font icons */
+.select::picker-icon {
+  color: var(--text-color);
+  transition: transform 0.3s ease;
+}
+
+.select:open::picker-icon {
+  transform: rotate(180deg);
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message {
+  height: 24px;
+}
+
+.error {
+  color: var(--error-text-color);
+}
+
+.success {
+  color: var(--success-text-color);
+}

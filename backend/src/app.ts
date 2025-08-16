@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // Подключение к MongoDB (используйте переменные окружения!)
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/test";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/mcsinona";
 
 mongoose
   .connect(MONGO_URI)
@@ -27,6 +27,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", convertRouter);
-app.use("/nonograms", nonogramRouter);
+app.use("/api/nonogram", nonogramRouter);
 
 export default app;

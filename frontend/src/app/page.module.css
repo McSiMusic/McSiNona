@@ -1,6 +1,5 @@
 .page {
   flex: 1;
-  padding: 24px;
   display: flex;
   overflow: hidden;
 }

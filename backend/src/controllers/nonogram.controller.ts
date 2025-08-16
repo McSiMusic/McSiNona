@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { Category, NonogramModel } from "../models/nonogram.model";
+import {
+  Category,
+  INonogramMeta,
+  NonogramModel,
+} from "../models/nonogram.model";
 import { escapeRegExp } from "lodash";
 
 interface NonogramFilter {
@@ -26,6 +30,32 @@ function isCategory(value: unknown): value is Category {
 
 export const createNonogram = async (req: Request, res: Response) => {
   try {
+    const { nonogram, name, width, height, category } = req.body as Omit<
+      INonogramMeta,
+      "id"
+    >;
+
+    if (!nonogram || !name || !width || !height || !category) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const newNonogram = await NonogramModel.create({
+      nonogram,
+      name,
+      width,
+      height,
+      category,
+    });
+
+    res.status(201).json(newNonogram);
+  } catch (error) {
+    console.error("Error creating nonogram:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getNonograms = async (req: Request, res: Response) => {
+  try {
     const { name, width, height, category } = req.query;
 
     const filter: NonogramFilter = {};
@@ -46,26 +76,16 @@ export const createNonogram = async (req: Request, res: Response) => {
       filter.category = category;
     }
 
-    const nonograms = await NonogramModel.find(filter).select("-__v");
-    res.json(nonograms);
-  } catch (error) {
-    console.error("Error creating nonogram:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+    const nonograms = await NonogramModel.find(filter)
+      .select("-__v -nonogram")
+      .lean();
 
-export const getNonograms = async (req: Request, res: Response) => {
-  try {
-    const { name, width, height, category } = req.query;
+    const transformed = nonograms.map(({ _id, ...rest }) => ({
+      id: _id.toString(),
+      ...rest,
+    }));
 
-    const filter: any = {};
-    if (name) filter.name = { $regex: name as string, $options: "i" };
-    if (width) filter.width = Number(width);
-    if (height) filter.height = Number(height);
-    if (category) filter.category = category as Category;
-
-    const nonograms = await NonogramModel.find(filter).select("-__v");
-    res.json(nonograms);
+    res.json(transformed);
   } catch (error) {
     console.error("Error fetching nonograms:", error);
     res.status(500).json({ message: "Server error" });
@@ -84,6 +104,27 @@ export const deleteNonograms = async (req: Request, res: Response) => {
     res.json({ deletedCount: result.deletedCount });
   } catch (error) {
     console.error("Error deleting nonograms:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getNonogramById = async (req: Request, res: Response) => {
+  try {
+    const nonogram = await NonogramModel.findById(req.params.id)
+      .select("-__v")
+      .lean();
+
+    if (!nonogram) {
+      return res.status(404).json({ message: "Nonogram not found" });
+    }
+
+    const { _id, ...rest } = nonogram;
+    res.json({
+      id: _id.toString(),
+      ...rest,
+    });
+  } catch (error) {
+    console.error("Error fetching nonogram:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

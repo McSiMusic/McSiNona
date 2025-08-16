@@ -5,6 +5,8 @@ html {
   --text-color: #465A50;
   --contrast-color: #62A97F;
   --contrast-bg-color: #E1FFEB;
+  --error-text-color: #a74040;
+  --success-text-color: #07854a;
 }
 
 body {

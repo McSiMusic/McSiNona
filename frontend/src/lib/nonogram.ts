@@ -39,13 +39,16 @@ export type NonogramMeta = {
     category: Category;
 };
 
-export type Category =
-    | "hero"
-    | "icon"
-    | "cartoon"
-    | "pattern"
-    | "nature"
-    | "games"
-    | "animals"
-    | "space"
-    | "other";
+export const categories = [
+    "hero",
+    "icon",
+    "cartoon",
+    "pattern",
+    "nature",
+    "games",
+    "animals",
+    "space",
+    "other",
+] as const;
+
+export type Category = (typeof categories)[number];

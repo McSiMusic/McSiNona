@@ -6,6 +6,8 @@ import {
     SolverCompleteWorkerMessage,
     SolverProgressWorkerMessage,
 } from "@/lib/solver/solveWorkerMessageTypes";
+import { Button } from "../button/Button";
+import styles from "./SolveButton.module.css";
 
 export default function SolveButton() {
     const dispatch = useDispatch();
@@ -51,9 +53,9 @@ export default function SolveButton() {
     }, [nonogram]);
 
     return (
-        <div>
-            <h4>{status}</h4>
-            <button onClick={handleSolveClick}>Solve</button>
+        <div className={styles.root}>
+            <Button onClick={handleSolveClick}>Solve</Button>
+            <div>{status}</div>
         </div>
     );
 }

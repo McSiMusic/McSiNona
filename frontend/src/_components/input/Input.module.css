@@ -1,0 +1,24 @@
+.input {
+    box-shadow: inset var(--text-color) 0 0 0 2px;
+    border: 0;
+    background: transparent;
+    appearance: none;
+    position: relative;
+    border-radius: 8px;
+    line-height: 1.4;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 400;
+    transition: all .2s ease;
+    padding: 2px 8px;
+}
+
+.input:hover {
+  box-shadow: 0 0 0 0 #fff inset, var(--contrast-color) 0 0 0 2px;
+}
+
+.input:focus {
+  background: #fff;
+        outline: 0;
+        box-shadow: 0 0 0 0 #fff inset, var(--contrast-color) 0 0 0 3px;
+}
