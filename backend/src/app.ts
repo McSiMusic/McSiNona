@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import convertRouter from "./routes/convert";
+import convertRouter from "./routes/convert.routes";
+import nonogramRouter from "./routes/nonogram.routes";
 
 dotenv.config();
 
@@ -26,5 +27,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", convertRouter);
+app.use("/nonograms", nonogramRouter);
 
 export default app;

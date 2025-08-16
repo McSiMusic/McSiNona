@@ -29,3 +29,23 @@ export type NonogramPointDefinition = {
     point: Point;
     value: NonogramCell;
 };
+
+export type NonogramMeta = {
+    nonogram: Nonogram;
+    name: string;
+    id: string;
+    width: number;
+    height: number;
+    category: Category;
+};
+
+export type Category =
+    | "hero"
+    | "icon"
+    | "cartoon"
+    | "pattern"
+    | "nature"
+    | "games"
+    | "animals"
+    | "space"
+    | "other";
