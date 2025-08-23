@@ -1,5 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+    Action,
     Nonogram,
     NonogramCell,
     NonogramPointDefinition,
@@ -7,11 +8,22 @@ import {
     Point,
 } from "./nonogram";
 import { isPointBelongsToLine } from "./helpers/isPointBelongsToLine";
+import {
+    addAction,
+    isRedoEnabled,
+    isUndoEnabled,
+    redo as redoHelper,
+    undo as undoHelper,
+} from "./historyHelper";
 
 const initialState: NonogramState = {
     nonogram: { horizontal: [], vertical: [] },
     field: [],
     mode: "normal",
+    history: {
+        actions: [],
+        position: 0,
+    },
 };
 
 export const nonogramSlice = createSlice({
@@ -24,22 +36,7 @@ export const nonogramSlice = createSlice({
             state.field = Array.from({ length: nonogram.vertical.length }, () =>
                 new Array(nonogram.horizontal.length).fill("empty"),
             );
-        },
-        changeFieldCell: (
-            state,
-            action: PayloadAction<{ type: NonogramCell; point: Point }>,
-        ) => {
-            const {
-                type,
-                point: { x, y },
-            } = action.payload;
-            const currentValue = state.field[x][y];
-            if (!currentValue) {
-                throw new Error("Can't retrieve value from field");
-            }
-
-            if (currentValue === type) state.field[x][y] = "empty";
-            else state.field[x][y] = type;
+            state.history = initialState.history;
         },
         calculateTemporaryLine: (state, action: PayloadAction<Point>) => {
             if (!state.temporaryLine)
@@ -90,8 +87,18 @@ export const nonogramSlice = createSlice({
 
             if (state.temporaryLine) {
                 const { start, type, end } = state.temporaryLine;
+                const historyAction: Action = {
+                    cells: [],
+                    type: "change",
+                };
 
                 if (!end) {
+                    historyAction.cells.push({
+                        point: start,
+                        before: state.field[start.x][start.y],
+                        after: type,
+                    });
+
                     state.field[start.x][start.y] = type;
                 } else {
                     if (start.x === end.x) {
@@ -99,6 +106,11 @@ export const nonogramSlice = createSlice({
                         const maxY = Math.max(start.y, end.y);
 
                         for (let y = minY; y <= maxY; y++) {
+                            historyAction.cells.push({
+                                point: { x: start.x, y },
+                                before: state.field[start.x][y],
+                                after: type,
+                            });
                             state.field[start.x][y] = type;
                         }
                     } else {
@@ -106,11 +118,17 @@ export const nonogramSlice = createSlice({
                         const maxX = Math.max(start.x, end.x);
 
                         for (let x = minX; x <= maxX; x++) {
+                            historyAction.cells.push({
+                                point: { x, y: start.y },
+                                before: state.field[x][start.y],
+                                after: type,
+                            });
                             state.field[x][start.y] = type;
                         }
                     }
                 }
 
+                addAction(state.history, historyAction);
                 state.temporaryLine = undefined;
             }
         },
@@ -128,11 +146,11 @@ export const nonogramSlice = createSlice({
         setField: (state, action: PayloadAction<NonogramState["field"]>) => {
             state.field = action.payload;
         },
-        inverseField: (state) => {
-            state.nonogram = nonogram;
-            state.field = Array.from({ length: nonogram.vertical.length }, () =>
-                new Array(nonogram.horizontal.length).fill("empty"),
-            );
+        undo: (state) => {
+            undoHelper(state.history, state.field);
+        },
+        redo: (state) => {
+            redoHelper(state.history, state.field);
         },
     },
     selectors: {
@@ -162,17 +180,20 @@ export const nonogramSlice = createSlice({
                 return { type: field[point.x][point.y], isTemporary: false };
             },
         ),
+        canUndo: (state) => isUndoEnabled(state.history),
+        canRedo: (state) => isRedoEnabled(state.history),
     },
 });
 
 export const {
     initNonogram,
-    changeFieldCell,
     calculateTemporaryLine,
     startLineMode,
     finishLineMode,
     fillCells,
     setField,
+    undo,
+    redo,
 } = nonogramSlice.actions;
 
 export const {
@@ -182,4 +203,6 @@ export const {
     getMaxHorizontalCount,
     getMode,
     getCellValue,
+    canRedo,
+    canUndo,
 } = nonogramSlice.selectors;

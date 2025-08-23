@@ -6,6 +6,7 @@ export interface IButtonProps {
     onClick: () => void;
     type?: "primary" | "secondary";
     disabled?: boolean;
+    className?: string;
 }
 
 export const Button = ({
@@ -13,6 +14,7 @@ export const Button = ({
     disabled,
     type,
     children,
+    className,
 }: PropsWithChildren<IButtonProps>) => {
     return (
         <button
@@ -22,6 +24,7 @@ export const Button = ({
                 styles.button,
                 type === "primary" && styles.primary,
                 disabled && styles.disabled,
+                className,
             )}
         >
             {children}

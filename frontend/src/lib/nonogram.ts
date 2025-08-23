@@ -18,6 +18,19 @@ export type NonogramState = {
     };
     /* Current mode, normal = when Idle, line - when draw a line */
     mode: "normal" | "line";
+    history: {
+        actions: Action[];
+        position: number;
+    };
+};
+
+export type Action = {
+    type: "change";
+    cells: {
+        point: Point;
+        before: NonogramCell;
+        after: NonogramCell;
+    }[];
 };
 
 export type Point = {

@@ -3,6 +3,7 @@ import NonogramStoreProvider from "@/app/NonogramProvider";
 import { API_BASE_URL } from "@/config";
 import { NonogramMeta } from "@/lib/nonogram";
 import styles from "./page.module.css";
+import { NonogramFooter } from "@/_components/nonogramFooter/NonogramFooter";
 
 export default async function NonogramPage({
     params,
@@ -22,6 +23,7 @@ export default async function NonogramPage({
         <div className={styles.page}>
             <NonogramStoreProvider nonogram={jsonResult.nonogram}>
                 <NonogramElement />
+                <NonogramFooter />
             </NonogramStoreProvider>
         </div>
     );
