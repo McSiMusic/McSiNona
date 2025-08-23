@@ -280,9 +280,10 @@ export function* generateSolutionsLazy(
     size: number,
     currentState: NonogramCell[],
     optimized: boolean,
-) {
+): Generator<NonogramCell[]> {
     if (lineNumbers.length === 0) {
-        yield new Array(size).fill("cross");
+        if (currentState.every((value) => value !== "filled"))
+            yield new Array(size).fill("cross");
         return;
     }
 
@@ -408,6 +409,9 @@ export function checkIfCanInsertBlock({
         if (currentState[i] === "cross") return false;
     }
 
+    //Check if there is no filled cell right after
+    if (currentState[lastBlockIndex] === "filled") return false;
+
     return true;
 }
 
@@ -473,4 +477,33 @@ const sortLines = (lines: LineMeta[]) => {
 
         return getLineMaxOffset(line1) - getLineMaxOffset(line2);
     });
+};
+
+export const hasSolutions = ({
+    field,
+    index,
+    isHorizontal,
+    nonogram,
+}: {
+    field: NonogramCell[][];
+    isHorizontal: boolean;
+    index: number;
+    nonogram: Nonogram;
+}) => {
+    const { horizontal, vertical } = nonogram;
+    const lineNumbers = isHorizontal ? horizontal[index] : vertical[index];
+    const size = isHorizontal ? vertical.length : horizontal.length;
+    const currentState = isHorizontal
+        ? field.map((row) => row[index])
+        : field[index];
+
+    const possibleSolutions = generateSolutionsLazy(
+        lineNumbers,
+        size,
+        currentState,
+        false,
+    );
+
+    const solution = possibleSolutions.next();
+    return Boolean(!solution.done);
 };

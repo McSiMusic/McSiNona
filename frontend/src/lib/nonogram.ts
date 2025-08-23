@@ -22,6 +22,10 @@ export type NonogramState = {
         actions: Action[];
         position: number;
     };
+    errorLines: {
+        vertical: number[];
+        horizontal: number[];
+    };
 };
 
 export type Action = {

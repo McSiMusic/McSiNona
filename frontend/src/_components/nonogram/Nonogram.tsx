@@ -172,8 +172,16 @@ export function NonogramElement() {
         };
     }, [handleMouseUp]);
 
+    const handleContextMenu = useCallback(
+        (event: React.MouseEvent<HTMLDivElement>) => {
+            event.preventDefault();
+            event.stopPropagation();
+        },
+        [],
+    );
+
     return (
-        <div className={styles.wrapper}>
+        <div className={styles.wrapper} onContextMenu={handleContextMenu}>
             <div
                 className={styles.grid}
                 style={{

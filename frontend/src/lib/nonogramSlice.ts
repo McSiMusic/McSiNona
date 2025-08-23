@@ -15,6 +15,7 @@ import {
     redo as redoHelper,
     undo as undoHelper,
 } from "./historyHelper";
+import { validateChanges } from "./errorHelper";
 
 const initialState: NonogramState = {
     nonogram: { horizontal: [], vertical: [] },
@@ -23,6 +24,10 @@ const initialState: NonogramState = {
     history: {
         actions: [],
         position: 0,
+    },
+    errorLines: {
+        vertical: [],
+        horizontal: [],
     },
 };
 
@@ -37,6 +42,7 @@ export const nonogramSlice = createSlice({
                 new Array(nonogram.horizontal.length).fill("empty"),
             );
             state.history = initialState.history;
+            state.errorLines = initialState.errorLines;
         },
         calculateTemporaryLine: (state, action: PayloadAction<Point>) => {
             if (!state.temporaryLine)
@@ -129,6 +135,14 @@ export const nonogramSlice = createSlice({
                 }
 
                 addAction(state.history, historyAction);
+                validateChanges({
+                    changedPoints: historyAction.cells.map(
+                        (cell) => cell.point,
+                    ),
+                    errors: state.errorLines,
+                    field: state.field,
+                    nonogram: state.nonogram,
+                });
                 state.temporaryLine = undefined;
             }
         },
@@ -147,10 +161,24 @@ export const nonogramSlice = createSlice({
             state.field = action.payload;
         },
         undo: (state) => {
-            undoHelper(state.history, state.field);
+            const changedCells = undoHelper(state.history, state.field);
+
+            validateChanges({
+                changedPoints: changedCells.map((cell) => cell.point),
+                errors: state.errorLines,
+                field: state.field,
+                nonogram: state.nonogram,
+            });
         },
         redo: (state) => {
-            redoHelper(state.history, state.field);
+            const changedCells = redoHelper(state.history, state.field);
+
+            validateChanges({
+                changedPoints: changedCells.map((cell) => cell.point),
+                errors: state.errorLines,
+                field: state.field,
+                nonogram: state.nonogram,
+            });
         },
     },
     selectors: {
@@ -164,11 +192,15 @@ export const nonogramSlice = createSlice({
         getCellValue: createSelector(
             [
                 (state: NonogramState) => state.mode,
+                (state: NonogramState) => state.errorLines,
                 (state: NonogramState) => state.temporaryLine,
                 (state: NonogramState) => state.field,
                 (_: NonogramState, point: Point) => point,
             ],
-            (mode, temporaryLine, field, point) => {
+            (mode, errorLines, temporaryLine, field, point) => {
+                const isError =
+                    errorLines.horizontal.includes(point.y) ||
+                    errorLines.vertical.includes(point.x);
                 if (
                     mode === "line" &&
                     temporaryLine &&
@@ -177,7 +209,11 @@ export const nonogramSlice = createSlice({
                     return { type: temporaryLine.type, isTemporary: true };
                 }
 
-                return { type: field[point.x][point.y], isTemporary: false };
+                return {
+                    type: field[point.x][point.y],
+                    isTemporary: false,
+                    isError,
+                };
             },
         ),
         canUndo: (state) => isUndoEnabled(state.history),

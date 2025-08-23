@@ -1,7 +1,9 @@
+import { NonogramCell } from "../nonogram";
 import {
     checkIfCanInsertBlock,
     generateOffsetsArraysLazy,
     generateSolutionsLazy,
+    hasSolutions,
 } from "./alternativeSolver";
 
 describe("alternativeSolver", () => {
@@ -59,5 +61,43 @@ describe("alternativeSolver", () => {
                 ),
             ),
         ).toStrictEqual([]);
+    });
+
+    it("hasSolutions", () => {
+        const field: NonogramCell[][] = [
+            ["cross", "cross", "filled"],
+            ["cross", "cross", "filled"],
+            ["cross", "cross", "filled"],
+        ];
+        expect(
+            hasSolutions({
+                field,
+                index: 0,
+                isHorizontal: true,
+                nonogram: {
+                    vertical: [[2], [2], [2]],
+                    horizontal: [[1, 1], [3], [1]],
+                },
+            }),
+        ).toBe(false);
+    });
+
+    it("hasSolutions", () => {
+        const field: NonogramCell[][] = [
+            ["empty", "empty", "empty"],
+            ["empty", "empty", "empty"],
+            ["empty", "empty", "empty"],
+        ];
+        expect(
+            hasSolutions({
+                field,
+                index: 0,
+                isHorizontal: true,
+                nonogram: {
+                    vertical: [[], [], []],
+                    horizontal: [[], [], []],
+                },
+            }),
+        ).toBe(true);
     });
 });

@@ -15,7 +15,7 @@ export interface ICellProps {
 }
 
 export function Cell({ point, onMouseDown, onMouseEnter }: ICellProps) {
-    const { isTemporary, type } = useSelector((state: NonogramState) =>
+    const { isTemporary, type, isError } = useSelector((state: NonogramState) =>
         getCellValue(state, point),
     );
 
@@ -36,24 +36,20 @@ export function Cell({ point, onMouseDown, onMouseEnter }: ICellProps) {
         onMouseEnter?.(point);
     }, [onMouseEnter, point]);
 
-    const handleContextMenu = useCallback(
-        (event: React.MouseEvent<HTMLDivElement>) => {
-            event.preventDefault();
-        },
-        [],
-    );
-
     return (
-        <div
-            className={cn([
-                styles.cell,
-                type === "filled" && styles.filled,
-                type === "cross" && styles.cross,
-                isTemporary && styles.temporary,
-            ])}
-            onMouseDown={handleMouseDown}
-            onMouseEnter={handleMouseEnter}
-            onContextMenu={handleContextMenu}
-        />
+        <>
+            <div
+                className={cn([
+                    styles.cell,
+                    type === "filled" && styles.filled,
+                    isTemporary && styles.temporary,
+                ])}
+                onMouseDown={handleMouseDown}
+                onMouseEnter={handleMouseEnter}
+            >
+                {type === "cross" && <div className={styles.cross} />}
+            </div>
+            <div className={cn(styles.error, isError && styles.active)} />
+        </>
     );
 }

@@ -37,6 +37,7 @@ export const undo = (
     });
 
     history.position -= 1;
+    return cells;
 };
 
 export const redo = (
@@ -54,4 +55,6 @@ export const redo = (
         } = cell;
         field[x][y] = after;
     });
+
+    return cells;
 };
