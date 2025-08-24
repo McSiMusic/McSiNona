@@ -412,6 +412,13 @@ export function checkIfCanInsertBlock({
     //Check if there is no filled cell right after
     if (currentState[lastBlockIndex] === "filled") return false;
 
+    //If the last block positioned, need to check there is no filled blocks next
+    if (index === lineNumbers.length - 1) {
+        for (let i = lastBlockIndex; i < currentState.length; i++) {
+            if (currentState[i] === "filled") return false;
+        }
+    }
+
     return true;
 }
 
