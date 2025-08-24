@@ -487,27 +487,23 @@ const sortLines = (lines: LineMeta[]) => {
 };
 
 export const hasSolutions = ({
-    field,
-    index,
+    currentLine,
+    lineNumbers,
     isHorizontal,
     nonogram,
 }: {
-    field: NonogramCell[][];
+    currentLine: NonogramCell[];
     isHorizontal: boolean;
-    index: number;
+    lineNumbers: number[];
     nonogram: Nonogram;
 }) => {
     const { horizontal, vertical } = nonogram;
-    const lineNumbers = isHorizontal ? horizontal[index] : vertical[index];
     const size = isHorizontal ? vertical.length : horizontal.length;
-    const currentState = isHorizontal
-        ? field.map((row) => row[index])
-        : field[index];
 
     const possibleSolutions = generateSolutionsLazy(
         lineNumbers,
         size,
-        currentState,
+        currentLine,
         false,
     );
 

@@ -15,7 +15,8 @@ import {
     redo as redoHelper,
     undo as undoHelper,
 } from "./historyHelper";
-import { validateChanges } from "./errorHelper";
+import { fillEmptyLines, validateChanges } from "./validateHelper";
+import { WritableDraft } from "immer";
 
 const initialState: NonogramState = {
     nonogram: { horizontal: [], vertical: [] },
@@ -29,6 +30,7 @@ const initialState: NonogramState = {
         vertical: [],
         horizontal: [],
     },
+    isSolved: false,
 };
 
 export const nonogramSlice = createSlice({
@@ -43,6 +45,7 @@ export const nonogramSlice = createSlice({
             );
             state.history = initialState.history;
             state.errorLines = initialState.errorLines;
+            fillEmptyLines({ nonogram: state.nonogram, field: state.field });
         },
         calculateTemporaryLine: (state, action: PayloadAction<Point>) => {
             if (!state.temporaryLine)
@@ -73,6 +76,7 @@ export const nonogramSlice = createSlice({
             state,
             action: PayloadAction<{ start: Point; type: NonogramCell }>,
         ) => {
+            if (state.isSolved) return;
             state.mode = "line";
 
             const { type, start } = action.payload;
@@ -89,6 +93,7 @@ export const nonogramSlice = createSlice({
             };
         },
         finishLineMode: (state) => {
+            if (state.isSolved) return;
             state.mode = "normal";
 
             if (state.temporaryLine) {
@@ -135,7 +140,7 @@ export const nonogramSlice = createSlice({
                 }
 
                 addAction(state.history, historyAction);
-                validateChanges({
+                const { isSolved } = validateChanges({
                     changedPoints: historyAction.cells.map(
                         (cell) => cell.point,
                     ),
@@ -144,12 +149,14 @@ export const nonogramSlice = createSlice({
                     nonogram: state.nonogram,
                 });
                 state.temporaryLine = undefined;
+                state.isSolved = isSolved;
             }
         },
         fillCells: (
             state,
             action: PayloadAction<NonogramPointDefinition[]>,
         ) => {
+            if (state.isSolved) return;
             state.mode = "line";
 
             action.payload.forEach(({ point, value }) => {
@@ -158,9 +165,11 @@ export const nonogramSlice = createSlice({
             });
         },
         setField: (state, action: PayloadAction<NonogramState["field"]>) => {
+            if (state.isSolved) return;
             state.field = action.payload;
         },
         undo: (state) => {
+            if (state.isSolved) return;
             const changedCells = undoHelper(state.history, state.field);
 
             validateChanges({
@@ -171,6 +180,7 @@ export const nonogramSlice = createSlice({
             });
         },
         redo: (state) => {
+            if (state.isSolved) return;
             const changedCells = redoHelper(state.history, state.field);
 
             validateChanges({
@@ -216,8 +226,9 @@ export const nonogramSlice = createSlice({
                 };
             },
         ),
-        canUndo: (state) => isUndoEnabled(state.history),
-        canRedo: (state) => isRedoEnabled(state.history),
+        canUndo: (state) => !state.isSolved && isUndoEnabled(state.history),
+        canRedo: (state) => !state.isSolved && isRedoEnabled(state.history),
+        isSolved: (state) => state.isSolved,
     },
 });
 
@@ -241,4 +252,5 @@ export const {
     getCellValue,
     canRedo,
     canUndo,
+    isSolved,
 } = nonogramSlice.selectors;

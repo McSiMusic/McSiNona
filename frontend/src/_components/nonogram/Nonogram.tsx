@@ -15,6 +15,7 @@ import {
     startLineMode,
 } from "@/lib/nonogramSlice";
 import { Cell } from "./Cell";
+import { WinText } from "./WinText/WinText";
 
 export interface INonogramProps {
     nonogram: Nonogram;
@@ -194,6 +195,7 @@ export function NonogramElement() {
                 {verticalValues}
                 {horizontalValues}
                 {fieldElements}
+                <WinText />
             </div>
         </div>
     );

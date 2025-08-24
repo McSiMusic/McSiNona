@@ -3,7 +3,7 @@ import styles from "./Button.module.css";
 import cn from "classnames";
 
 export interface IButtonProps {
-    onClick: () => void;
+    onClick?: () => void;
     type?: "primary" | "secondary";
     disabled?: boolean;
     className?: string;

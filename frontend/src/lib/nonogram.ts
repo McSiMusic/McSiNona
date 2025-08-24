@@ -26,6 +26,7 @@ export type NonogramState = {
         vertical: number[];
         horizontal: number[];
     };
+    isSolved: boolean;
 };
 
 export type Action = {
